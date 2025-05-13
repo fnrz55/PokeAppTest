@@ -15,16 +15,23 @@ import com.example.poketest.Models.Pokemon;
 
 import java.util.ArrayList;
 
-
-
 public class ListaPokemonAdapter extends RecyclerView.Adapter<ListaPokemonAdapter.ViewHolder> {
 
-    private ArrayList<Pokemon> dataset;
+    private ArrayList<Pokemon> pokemonList;
     private Context context;
 
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Pokemon pokemon);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
     public ListaPokemonAdapter(Context context) {
         this.context = context;
-        dataset = new ArrayList<>();
+        pokemonList = new ArrayList<>();
     }
 
     @Override
@@ -35,36 +42,39 @@ public class ListaPokemonAdapter extends RecyclerView.Adapter<ListaPokemonAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Pokemon p = dataset.get(position);
-        holder.nombreTextView.setText(p.getName());
+        Pokemon pokemon = pokemonList.get(position);
+        holder.nameTextView.setText(pokemon.getName());
 
         Glide.with(context)
-                .load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + p.getNumber() + ".png")
+                .load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokemon.getNumber() + ".png")
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.fotoImageView);
+                .into(holder.photoImageView);
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(pokemon);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return dataset.size();
+        return pokemonList.size();
     }
 
-    public void adicionarListaPokemon(ArrayList<Pokemon> listaPokemon) {
-        dataset.addAll(listaPokemon);
+    public void adicionarListaPokemon(ArrayList<Pokemon> pokemonList) {
+        this.pokemonList.addAll(pokemonList);
         notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
-        private ImageView fotoImageView;
-        private TextView nombreTextView;
+        private ImageView photoImageView;
+        private TextView nameTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
-            fotoImageView = itemView.findViewById(R.id.fotoImageView);
-            nombreTextView = itemView.findViewById(R.id.nombreTextView);
+            photoImageView = itemView.findViewById(R.id.fotoImageView);
+            nameTextView = itemView.findViewById(R.id.nombreTextView);
         }
     }
 }

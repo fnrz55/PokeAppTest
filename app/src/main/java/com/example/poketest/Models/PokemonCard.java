@@ -1,6 +1,6 @@
 package com.example.poketest.Models;
 
-public class Pokemon {
+public class PokemonCard {
 
     private int number;
     private String name;
@@ -23,11 +23,12 @@ public class Pokemon {
     }
 
     public int getNumber() {
-        String[] urlParts = url.split("/");
-        return Integer.parseInt(urlParts[urlParts.length - 1]);
+        String[] urlPartes = url.split("/");
+        return Integer.parseInt(urlPartes[urlPartes.length - 1]);
     }
 
     public void setNumber(int number) {
         this.number = number;
     }
+
 }
