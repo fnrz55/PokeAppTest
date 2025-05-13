@@ -1,6 +1,6 @@
 package com.example.poketest;
 
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -20,8 +20,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "POKEDEX";
@@ -29,11 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
 
     private RecyclerView recyclerView;
-    private ListaPokemonAdapter listaPokemonAdapter;
-
+    private ListaPokemonAdapter pokemonListAdapter;
     private int offset;
-
-    private boolean aptoParaCargar;
+    private boolean canLoadMore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerView);
-        listaPokemonAdapter = new ListaPokemonAdapter(this);
-        recyclerView.setAdapter(listaPokemonAdapter);
+        pokemonListAdapter = new ListaPokemonAdapter(this);
+        recyclerView.setAdapter(pokemonListAdapter);
         recyclerView.setHasFixedSize(true);
         final GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(layoutManager);
@@ -50,23 +46,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
+                Log.i("tag", "scroll");
+                Log.i("tag", String.valueOf(dy));
                 if (dy > 0) {
                     int visibleItemCount = layoutManager.getChildCount();
+                    Log.i("tag", String.valueOf(visibleItemCount));
                     int totalItemCount = layoutManager.getItemCount();
                     int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
 
-                    if (aptoParaCargar) {
+                    if (canLoadMore) {
                         if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                            Log.i(TAG, " Llegamos al final.");
-
-                            aptoParaCargar = false;
+                            Log.i("tag", "Reached the end.");
+                            canLoadMore = false;
                             offset += 20;
-                            obtenerDatos(offset);
+                            fetchData(offset);
                         }
                     }
                 }
             }
+        });
+        pokemonListAdapter.setOnItemClickListener(pokemon -> {
+            Intent intent = new Intent(MainActivity.this, PokemonDetailActivity.class);
+            intent.putExtra("pokemon_id", pokemon.getNumber());
+            startActivity(intent);
         });
 
         retrofit = new Retrofit.Builder()
@@ -74,24 +76,24 @@ public class MainActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        aptoParaCargar = true;
+        canLoadMore = true;
         offset = 0;
-        obtenerDatos(offset);
+        fetchData(offset);
     }
 
-    private void obtenerDatos(int offset) {
+    private void fetchData(int offset) {
         PokeapiService service = retrofit.create(PokeapiService.class);
-        Call<PokemonRespuesta> pokemonRespuestaCall = service.obtenerListaPokemon(20, offset);
+        Call<PokemonRespuesta> responseCall = service.obtenerListaPokemon(30, offset);
 
-        pokemonRespuestaCall.enqueue(new Callback<PokemonRespuesta>() {
+        responseCall.enqueue(new Callback<PokemonRespuesta>() {
             @Override
             public void onResponse(Call<PokemonRespuesta> call, Response<PokemonRespuesta> response) {
-                aptoParaCargar = true;
+                canLoadMore = true;
                 if (response.isSuccessful()) {
-                    PokemonRespuesta pokemonRespuesta = response.body();
-                    ArrayList<Pokemon> listaPokemon = pokemonRespuesta.getResults();
-
-                    listaPokemonAdapter.adicionarListaPokemon(listaPokemon);
+                    PokemonRespuesta responseBody = response.body();
+                    ArrayList<Pokemon> pokemonList = responseBody.getResults();
+                    Log.e("tag", " onResponse: " + pokemonList.size());
+                    pokemonListAdapter.adicionarListaPokemon(pokemonList);
                 } else {
                     Log.e(TAG, " onResponse: " + response.errorBody());
                 }
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<PokemonRespuesta> call, Throwable t) {
-                aptoParaCargar = true;
+                canLoadMore = true;
                 Log.e(TAG, " onFailure: " + t.getMessage());
             }
         });
