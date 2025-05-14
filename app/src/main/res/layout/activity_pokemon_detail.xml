@@ -1,70 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:background="@drawable/pokemon_gradient">
 
-    <LinearLayout
+    <!-- TopAppBar (новая добавленная секция) -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="?attr/actionBarSize"
+        app:title="Pokemon Details"
+        app:navigationIcon="@drawable/ic_back"
+        app:titleCentered="true"/>
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="100dp"
-            android:layout_height="53dp"
-            android:onClick="onBackClick"
-            android:src="@drawable/ic_back" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ImageView
-            android:id="@+id/detailImageView"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center" />
-
-        <TextView
-            android:id="@+id/nameTextView"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:layout_gravity="center"/>
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingTop="?actionBarSize"> <!-- Добавлен отступ под TopAppBar -->
 
-        <TextView
-            android:id="@+id/heightTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Height: "/>
+            <!-- Удален старый btnBack -->
 
-        <TextView
-            android:id="@+id/weightTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Weight: "/>
+            <ImageView
+                android:id="@+id/detailImageView"
+                android:layout_width="200dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center" />
 
-        <TextView
-            android:id="@+id/abilitiesTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Abilities:"
-            android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/nameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:layout_gravity="center"/>
 
-        <TextView
-            android:id="@+id/abilitiesTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/heightTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Height: "/>
 
-        <TextView
-            android:id="@+id/statsTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stats:"
-            android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/weightTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Weight: "/>
 
-        <TextView
-            android:id="@+id/statsTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/abilitiesTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Abilities:"
+                android:textStyle="bold"/>
 
-    </LinearLayout>
-</ScrollView>
+            <TextView
+                android:id="@+id/abilitiesTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/statsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stats:"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/statsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
