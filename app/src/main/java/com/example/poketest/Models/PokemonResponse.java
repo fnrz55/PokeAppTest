@@ -2,7 +2,7 @@ package com.example.poketest.Models;
 
 import java.util.ArrayList;
 
-public class PokemonRespuesta {
+public class PokemonResponse {
 
     private ArrayList<Pokemon> results;
 

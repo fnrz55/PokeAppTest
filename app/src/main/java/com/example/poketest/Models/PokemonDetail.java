@@ -13,8 +13,9 @@ public class PokemonDetail {
     private List<AbilityEntry> abilities;
     private List<StatEntry> stats;
 
-    public int getId() { return id; }
+    public int getNumber() { return id; }
     public String getName() { return name; }
+
     public int getHeight() { return height; }
     public int getWeight() { return weight; }
     public Sprites getSprites() { return sprites; }

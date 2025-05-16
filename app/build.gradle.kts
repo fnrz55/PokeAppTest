@@ -45,5 +45,6 @@ dependencies {
 
 //    implementation ("com.github.bumptech.glide:glide:4.13.2")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
-    implementation ("com.google.android.material:material:1.9.0")
+    implementation ("com.google.android.material:material:1.12.0")
+    implementation("androidx.paging:paging-runtime:3.3.6")
 }

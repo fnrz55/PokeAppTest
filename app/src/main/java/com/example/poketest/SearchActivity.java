@@ -1,8 +1,13 @@
 package com.example.poketest;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -12,6 +17,7 @@ import com.example.poketest.Models.Pokemon;
 import com.example.poketest.Models.PokemonResponse;
 import com.example.poketest.PokeAPI.PokeapiService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.search.SearchBar;
 
 import java.util.ArrayList;
 
@@ -21,31 +27,61 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "POKEDEX";
-
+public class SearchActivity extends AppCompatActivity {
     private Retrofit retrofit;
 
     private RecyclerView recyclerView;
     private PokemonListAdapter pokemonListAdapter;
-    private int offset;
-    private boolean canLoadMore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-//      setContentView(R.layout.search_layout);
+        setContentView(R.layout.activity_search);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
-        bottomNav.setSelectedItemId(R.id.item_1);
+        bottomNav.setSelectedItemId(R.id.item_2);
+//        SearchBar searchBar = findViewById(R.id.search_bar);
+//        EditText editText = searchBar.getEditText();
+        EditText searchInput = findViewById(R.id.search_input);
+
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String currentText = s.toString();
+
+                pokemonListAdapter.filterPokemonsByName(currentText);
+
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+//        searchInput.postDelayed(() -> {
+//            if (searchInput.requestFocus()) {
+//                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+//                imm.showSoftInput(searchInput, InputMethodManager.SHOW_IMPLICIT);
+//            }
+//        }, 300);
+
+//        searchInput.setOnMenuItemClickListener(
+//                menuItem -> {
+//
+//                    return true;
+//                });
 
         bottomNav.setOnItemSelectedListener(item -> {
+
             int id = item.getItemId();
 
-            if (id == R.id.item_2) {
-                startActivity(new Intent(this, SearchActivity.class));
+            if (id == R.id.item_1) {
+                startActivity(new Intent(this, MainActivity.class));
                 return true;
             } else if (id == R.id.item_3) {
                 startActivity(new Intent(this, SortActivity.class));
@@ -53,74 +89,41 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-
         recyclerView = findViewById(R.id.recyclerView);
         pokemonListAdapter = new PokemonListAdapter(this);
         recyclerView.setAdapter(pokemonListAdapter);
         recyclerView.setHasFixedSize(true);
         final GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                Log.i("tag", "scroll");
-                Log.i("tag", String.valueOf(dy));
-                if (dy > 0) {
-                    int visibleItemCount = layoutManager.getChildCount();
-                    Log.i("tag", String.valueOf(visibleItemCount));
-                    int totalItemCount = layoutManager.getItemCount();
-                    int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
 
-                    if (canLoadMore) {
-                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                            Log.i("tag", "Reached the end.");
-                            canLoadMore = false;
-                            offset += 20;
-                            fetchData(offset);
-                        }
-                    }
-                }
-            }
-        });
-        pokemonListAdapter.setOnItemClickListener(pokemon -> {
-            Intent intent = new Intent(MainActivity.this, PokemonDetailActivity.class);
-            intent.putExtra("pokemon_id", pokemon.getNumber());
-            startActivity(intent);
-        });
-
+        int pokemonId = getIntent().getIntExtra("pokemon_id", 0);
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://pokeapi.co/api/v2/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        canLoadMore = true;
-        offset = 0;
-        fetchData(offset);
+        fetchSearchData();
     }
-
-    private void fetchData(int offset) {
+    private void fetchSearchData() {
         PokeapiService service = retrofit.create(PokeapiService.class);
-        Call<PokemonResponse> responseCall = service.getPokemonList(30, offset);
+        Call<PokemonResponse> responseCall = service.getPokemonList(1400, 0);
 
         responseCall.enqueue(new Callback<PokemonResponse>() {
             @Override
             public void onResponse(Call<PokemonResponse> call, Response<PokemonResponse> response) {
-                canLoadMore = true;
                 if (response.isSuccessful()) {
                     PokemonResponse responseBody = response.body();
                     ArrayList<Pokemon> pokemonList = responseBody.getResults();
-                    Log.e("tag", " onResponse: " + pokemonList.size());
+                    Log.e("tag", " onResponse search: " + pokemonList.size());
                     pokemonListAdapter.appendPokemonList(pokemonList);
                 } else {
-                    Log.e(TAG, " onResponse: " + response.errorBody());
+                    Log.e("tag", " onResponse: " + response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<PokemonResponse> call, Throwable t) {
-                canLoadMore = true;
-                Log.e(TAG, " onFailure: " + t.getMessage());
+                Log.e("tag", " onFailure: " + t.getMessage());
             }
         });
     }

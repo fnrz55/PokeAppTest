@@ -1,6 +1,8 @@
 package com.example.poketest;
 
 
+import static android.content.Intent.getIntent;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.poketest.Models.PokemonDetail;
 import com.example.poketest.PokeAPI.PokeapiService;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
 
@@ -25,12 +28,18 @@ public class PokemonDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pokemon_detail);
+        setContentView(R.layout.activity_pokemon_detail_test);
+
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+
+        setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        toolbar.setNavigationOnClickListener(v -> onSupportNavigateUp());
 
         int pokemonId = getIntent().getIntExtra("pokemon_id", 0);
         fetchPokemonDetails(pokemonId);
@@ -38,6 +47,7 @@ public class PokemonDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        Log.e("tag", "Нажата кнопка назад");
         onBackPressed();
         return true;
     }
