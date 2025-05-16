@@ -5,7 +5,11 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -29,14 +33,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SortActivity extends AppCompatActivity {
     private Retrofit retrofit;
-
     private RecyclerView recyclerView;
-    private PokemonListAdapter pokemonListAdapter;
+    private Spinner sortSpinner;
+
+    String[] sortOptions = {"По высоте", "По весу", "A-Z", "Z-A"};
+
+    private PokemonDetailsListAdapter pokemonListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.activity_sort);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
         bottomNav.setSelectedItemId(R.id.item_3);
@@ -54,14 +61,47 @@ public class SortActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        sortSpinner = findViewById(R.id.sort_spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.custom_spinner_item, sortOptions );
+        sortSpinner.setAdapter(adapter);
         recyclerView = findViewById(R.id.recyclerView);
-        pokemonListAdapter = new PokemonListAdapter(this);
+        pokemonListAdapter = new PokemonDetailsListAdapter(this);
         recyclerView.setAdapter(pokemonListAdapter);
         recyclerView.setHasFixedSize(true);
         final GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(layoutManager);
 
-        int pokemonId = getIntent().getIntExtra("pokemon_id", 0);
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        pokemonListAdapter.sortPokemonsByHeight();
+                        break;
+                    case 1:
+                        pokemonListAdapter.sortPokemonsByWeight();
+                        break;
+                    case 2:
+                        pokemonListAdapter.sortPokemonsByName(false);
+                        break;
+                    case 3:
+                        pokemonListAdapter.sortPokemonsByName(true);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+
+
+        pokemonListAdapter.setOnItemClickListener(pokemon -> {
+            Intent intent = new Intent(SortActivity.this, PokemonDetailActivity.class);
+            intent.putExtra("pokemon_id", pokemon.getNumber());
+            startActivity(intent);
+        });
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://pokeapi.co/api/v2/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -109,7 +149,7 @@ public class SortActivity extends AppCompatActivity {
                                 if (completedRequests.incrementAndGet() == totalRequests) {
                                     runOnUiThread(() -> {
                                         if (isSuccess.get()) {
-                                            pokemonListAdapter.appendPokemonDetailsList(result);
+                                            pokemonListAdapter.appendPokemonList(result);
                                         } else {
                                             // Обработка ошибки (например, показать Toast)
                                         }

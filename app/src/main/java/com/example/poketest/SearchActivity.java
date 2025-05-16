@@ -40,8 +40,6 @@ public class SearchActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
         bottomNav.setSelectedItemId(R.id.item_2);
-//        SearchBar searchBar = findViewById(R.id.search_bar);
-//        EditText editText = searchBar.getEditText();
         EditText searchInput = findViewById(R.id.search_input);
 
         searchInput.addTextChangedListener(new TextWatcher() {
@@ -62,19 +60,6 @@ public class SearchActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
-
-//        searchInput.postDelayed(() -> {
-//            if (searchInput.requestFocus()) {
-//                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-//                imm.showSoftInput(searchInput, InputMethodManager.SHOW_IMPLICIT);
-//            }
-//        }, 300);
-
-//        searchInput.setOnMenuItemClickListener(
-//                menuItem -> {
-//
-//                    return true;
-//                });
 
         bottomNav.setOnItemSelectedListener(item -> {
 
@@ -101,6 +86,12 @@ public class SearchActivity extends AppCompatActivity {
                 .baseUrl("https://pokeapi.co/api/v2/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+        pokemonListAdapter.setOnItemClickListener(pokemon -> {
+            Intent intent = new Intent(SearchActivity.this, PokemonDetailActivity.class);
+            intent.putExtra("pokemon_id", pokemon.getNumber());
+            startActivity(intent);
+        });
 
         fetchSearchData();
     }
